@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS "Detalle_pedidos" (
 	"precio_unitario"	REAL,
 	"id"	INTEGER,
 	"codigo_pedido"	INTEGER,
-	FOREIGN KEY("codigo_pedido") REFERENCES "Pedidos"("codigo"),
-	PRIMARY KEY("id" AUTOINCREMENT)
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("codigo_pedido") REFERENCES "Pedidos"("codigo")
 );
 CREATE TABLE IF NOT EXISTS "Roles" (
 	"id"	INTEGER,
@@ -41,8 +41,9 @@ CREATE TABLE IF NOT EXISTS "Usuarios" (
 	"email"	TEXT NOT NULL,
 	"telefono"	REAL NOT NULL,
 	"domicilio"	TEXT NOT NULL,
+	"activo"	INTEGER,
 	"tipo"	INTEGER,
-	PRIMARY KEY("id"),
-	FOREIGN KEY("tipo") REFERENCES "Roles"("id")
+	FOREIGN KEY("tipo") REFERENCES "Roles"("id"),
+	PRIMARY KEY("id")
 );
 COMMIT;

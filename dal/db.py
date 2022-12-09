@@ -1,9 +1,52 @@
-#funciones y procedimientos que permiten  'CRUD' en la base de datos
 import sqlite3
+from datetime import date
+import hashlib
 PATH = 'test.db'
+#funciones y procedimientos que permiten  'CRUD' en la base de datos
 
-class db:
+class Db:
+       
+    #sirve para modificar alguna tabla recibe una consulta y opcionalmente una tupla con los parametros para la consulta
+    #permite actualizar, crear tabla, eliminar y agregar algun elemento
+    @staticmethod
+    def modifica_db(consulta,parametros=()):
+        with sqlite3.connect('TEST.DB') as conexion:
+            cursor = conexion.cursor()
+            if len(parametros) != 0 :
+                cursor.execute(consulta,parametros)
+            else:
+                cursor.execute(consulta)
+            conexion.commit()
+
+    @staticmethod
+    def modifica_db_varios(consulta,parametros=()):
+        with sqlite3.connect('TEST.DB') as conexion:
+            cursor = conexion.cursor()
+            cursor.executemany(consulta,parametros)
+            conexion.commit()
     
+    @staticmethod
+    #realiza una consulta con WHERE y si obtiene algun valor retorna true sino false 
+    def busca_uno_varios(consulta,parametros):
+        with sqlite3.connect('TEST.DB') as conexion:
+            cursor = conexion.cursor()
+            cursor.execute(consulta,parametros)
+            resp = cursor.fetchall()
+            if(len(resp) >0):
+                return True
+            else:
+                return False
+    
+    #dal retornar los datos de la consulta en un mensaje
+    def consulta_db(consulta,parametros=()):
+        with sqlite3.connect('TEST.DB') as conexion:
+            cursor = conexion.cursor()
+            if len(parametros) != 0 :
+                cursor.execute(consulta,parametros)
+                resp = cursor.fetchall()
+            return resp
+            
+
     #CREAR TABLAS SI NO EXISTEN PARA usuarios,productos,administradores,reg. compras y ticket
     def crea_tabla_usuarios():
         with sqlite3.connect(PATH) as conexion:

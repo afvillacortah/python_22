@@ -17,6 +17,7 @@ class App:
         root.geometry(alignstr)
         root.resizable(width=False, height=False)
 
+       
         GButton_284=tk.Button(root)
         GButton_284["bg"] = "#f0f0f0"
         ft = tkFont.Font(family='Times',size=10)
@@ -27,13 +28,14 @@ class App:
         GButton_284.place(x=10,y=10,width=512,height=30)
         GButton_284["command"] = self.abrir_login
 
+
     def abrir_login(self):
         Login(self.root)
 
 if __name__ == "__main__":
     usr.crear_tablas()
     usr.poblar_tablas()
-    project = "cinemark" #"supermarket"
+    project = "supermarket" 
     root = tk.Tk()
     root.iconbitmap(default=f"{project}.ico")
     app = App(root, project.capitalize())

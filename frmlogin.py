@@ -92,7 +92,7 @@ class Login(tk.Toplevel):
             contrasenia = txtContrasenia.get()
 
             if usuario != "":
-                if user.validar(usuario, contrasenia):
+                if user.validar_usuario(usuario, contrasenia):
                     Dashboard(self.master)
                     self.destroy()
                 else:

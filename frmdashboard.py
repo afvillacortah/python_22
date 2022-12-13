@@ -1,37 +1,40 @@
 import tkinter as tk
 import tkinter.font as tkFont
-from frmusers import Users
-
+from  frmagregarproducto import  Agregar_producto
+from frmmodificarproducto import Modificar_producto
 class Dashboard(tk.Toplevel):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master        
-        self.title("Menú Principal")        
-        width=548
-        height=407
+        self.title("Menú Principal Administracion")        
+        width=350   
+        height=307
         screenwidth = self.winfo_screenwidth()
         screenheight = self.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
         self.geometry(alignstr)
         self.resizable(width=False, height=False)
 
+        
+        GLabel_996=tk.Label(self)
+        ft = tkFont.Font(family='Times',size=10)
+        GLabel_996["font"] = ft
+        GLabel_996["fg"] = "#333333"
+        GLabel_996["justify"] = "center"
+        GLabel_996["text"] = "Menu Administración"
+        GLabel_996.place(x=80,y=10,width=182,height=30)
+        
         GButton_245=tk.Button(self)
         GButton_245["bg"] = "#f0f0f0"
         ft = tkFont.Font(family='Times',size=10)
         GButton_245["font"] = ft
         GButton_245["fg"] = "#000000"
         GButton_245["justify"] = "center"
-        GButton_245["text"] = "Usuarios"
-        GButton_245.place(x=10,y=40,width=165,height=45)
-        GButton_245["command"] = self.abrir_usuarios
+        GButton_245["text"] = "Cargar Producto"
+        GButton_245.place(x=70,y=70,width=206,height=30)
+        GButton_245["command"] = self.cargar_producto
 
-        GLabel_996=tk.Label(self)
-        ft = tkFont.Font(family='Times',size=10)
-        GLabel_996["font"] = ft
-        GLabel_996["fg"] = "#333333"
-        GLabel_996["justify"] = "left"
-        GLabel_996["text"] = "Administración:"
-        GLabel_996.place(x=10,y=10,width=120,height=30)
+        
 
         GButton_196=tk.Button(self)
         GButton_196["bg"] = "#f0f0f0"
@@ -39,9 +42,9 @@ class Dashboard(tk.Toplevel):
         GButton_196["font"] = ft
         GButton_196["fg"] = "#000000"
         GButton_196["justify"] = "center"
-        GButton_196["text"] = "Salas"
-        GButton_196.place(x=190,y=40,width=165,height=45)
-        GButton_196["command"] = self.abrir_salas
+        GButton_196["text"] = "Editar Producto"
+        GButton_196.place(x=70,y=120,width=208,height=30)
+        GButton_196["command"] = self.editar_producto
 
         GButton_430=tk.Button(self)
         GButton_430["bg"] = "#f0f0f0"
@@ -49,15 +52,30 @@ class Dashboard(tk.Toplevel):
         GButton_430["font"] = ft
         GButton_430["fg"] = "#000000"
         GButton_430["justify"] = "center"
-        GButton_430["text"] = "Descuentos"
-        GButton_430.place(x=370,y=40,width=165,height=45)
-        GButton_430["command"] = self.abrir_descuentos
+        GButton_430["text"] = "Ver Compras realizadas"
+        GButton_430.place(x=70,y=170,width=205,height=30)
+        GButton_430["command"] = self.compras_realizadas
 
-    def abrir_usuarios(self):
-        Users(self)
+        GButton_400=tk.Button(self)
+        GButton_400["bg"] = "#f0f0f0"
+        ft = tkFont.Font(family='Times',size=10)
+        GButton_400["font"] = ft
+        GButton_400["fg"] = "#000000"
+        GButton_400["justify"] = "center"
+        GButton_400["text"] = "Ver detalle de compra"
+        GButton_400.place(x=70,y=220,width=207,height=30)
+        GButton_400["command"] = self.detalle_compra
 
-    def abrir_salas(self):
-        print("salas")
+        
+    
+    def cargar_producto(self):
+        Agregar_producto(self)
 
-    def abrir_descuentos(self):
-        print("descuentos")
+    def editar_producto(self):
+        Modificar_producto(self)
+
+    def compras_realizadas(self):
+        print("Compras realizadas")
+    
+    def detalle_compra(self):
+        print("detalle de compra de un usuario")

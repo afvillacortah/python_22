@@ -93,8 +93,12 @@ class Login(tk.Toplevel):
 
             if usuario != "":
                 if user.validar_usuario(usuario, contrasenia):
-                    Dashboard(self.master)
-                    self.destroy()
+                    if (user.usuario_administrador(usuario)):#abrir menu de administracion
+                        Dashboard(self.master)
+                        self.destroy()
+                    else:
+                        print('abrir menu de usuario comun')
+                        #abrir menu usuario
                 else:
                     tkMsgBox.showwarning(self.master.title(), "Usuario/Contraseña incorrecta")
             else:

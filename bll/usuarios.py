@@ -119,12 +119,12 @@ def es_text_sin_espacios(variable):
     for c in variable:
         if c == ' ':
             no_tiene_espacio = False
-
-    return (variable.isprintable() and (not variable.isdigit()) and no_tiene_espacio)
+    return (variable.isprintable() and no_tiene_espacio)
 def es_text_con_espacios(variable):
     return (variable.isprintable() and (not variable.isdigit()) )
 def es_numero(numero):
     return numero.isdigit()
+
 def valida_nombre_ape(var):
     tiene_espacio = False
     for c in var:
@@ -159,7 +159,16 @@ def valida_email(email):
 
 
 def valida_datos_registro(usuario,contrasenia,confirmacion,nombre,apellido,dni,email,domicilio,ciudad,telefono):
-    return (es_text_sin_espacios(usuario)and (not(existe_usuario(usuario)))and password_iguales(contrasenia,confirmacion)and
-     es_text_sin_espacios(contrasenia) and valida_nombre_ape(nombre)and valida_nombre_ape(apellido)and es_numero(dni) and
+    return (es_text_sin_espacios(usuario)and (not es_numero(usuario)) and (not(existe_usuario(usuario)))and password_iguales(contrasenia,confirmacion)and
+     es_text_sin_espacios(contrasenia) and  valida_nombre_ape(nombre)and valida_nombre_ape(apellido)and es_numero(dni) and
       valida_domicilio(domicilio)and valida_ciudad(ciudad)and es_numero(telefono) and valida_email(email))
-      
+
+def usuario_administrador(usuario):
+    sql = 'SELECT "tipo" FROM "Usuarios" WHERE id = ?'
+    parametro = (usuario,)
+    resp = Db.consulta_db(sql,True,parametro)
+    resp = int(resp[0])
+    if resp == 1:
+        return True
+    else:
+        return False

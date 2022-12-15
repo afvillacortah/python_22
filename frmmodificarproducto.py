@@ -3,7 +3,10 @@ import tkinter as tk
 import tkinter.font as tkFont
 import tkinter.ttk as ttk
 import tkinter.messagebox as tkMsgBox
+import bll.usuarios as usr
+from frmeditproducto import Editor
 import bll.administracion as adm
+
 
 #ventana tkinter y POO
 
@@ -11,7 +14,8 @@ class Modificar_producto(tk.Toplevel):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.select_cod = -1 
+        self.select_cod = -1
+       
         #setting title
         self.title("Modificar Producto")
         #setting window size 
@@ -98,6 +102,11 @@ class Modificar_producto(tk.Toplevel):
         tv.bind("<<TreeviewSelect>>", self.obtener_fila)
         tv.place(x=30,y=110,width=600,height=106)    
 
+        cantidad_productos = dict(usr.listar_stock(self.select_cod))
+        cb_cantidad_productos = ttk.Combobox(self, state="readonly", values=list(cantidad_productos.values()), name="cbCantidadProductos")
+        cb_cantidad_productos.current(0)
+        cb_cantidad_productos.place(x=190,y=260,width=206,height=30)
+
     def get_value(self, name):
             return self.nametowidget(name).get()
     
@@ -109,9 +118,9 @@ class Modificar_producto(tk.Toplevel):
             self.select_cod = int(data["text"])
         else:
             self.select_cod = -1
+            
     #acciones del boton 'buscar'
     def GButton_747_command(self):
-        print('boton buscar')
         producto_buscado = self.get_value("txtProdBuscar")
         tvProductos =self.nametowidget("tvProductos")
         for record in tvProductos.get_children():
@@ -123,11 +132,13 @@ class Modificar_producto(tk.Toplevel):
         else:
             tkMsgBox.showwarning(self.master.title(), "Ningun producto encontrado")
 
-
+    #boton modificar
     def GButton_534_command(self):
-        print(self.select_cod)
+        producto=adm.obtener_producto(self.select_cod)
+        Editor(producto,self)
 
 
+    #boton salir
     def GButton_674_command(self):
-        print("command")
+        self.destroy()
 

@@ -38,6 +38,7 @@ def crear_tablas(): #tablas para guardar los datos de los usuarios
                         "marca"	TEXT NOT NULL,
                         "stock"	INTEGER NOT NULL,
                         "precio"	REAL NOT NULL,
+                        "es_activo" INTEGER DEFAULT 1,
                         "categoria"	INTEGER,
                         FOREIGN KEY("categoria") REFERENCES "Categorias_productos"("codigo"),
                         PRIMARY KEY("codigo" AUTOINCREMENT)
@@ -50,8 +51,9 @@ def crear_tablas(): #tablas para guardar los datos de los usuarios
 	                PRIMARY KEY("codigo" AUTOINCREMENT)
                     );'''
     tabla_detalle_pedidos = '''CREATE TABLE IF NOT EXISTS "Detalle_pedidos" (
-                            "producto"	TEXT,"precio_unitario"	REAL,
-                            "id"	INTEGER,"codigo_pedido"	INTEGER,
+                            "id"	INTEGER,
+                            "producto"	TEXT,"cantidad"	INTEGER,
+                            "codigo_pedido"	INTEGER,
                             PRIMARY KEY("id" AUTOINCREMENT),
                             FOREIGN KEY("codigo_pedido") REFERENCES "Pedidos"("codigo")
                             );'''
@@ -66,7 +68,7 @@ def crear_tablas(): #tablas para guardar los datos de los usuarios
                         "domicilio"	TEXT NOT NULL,
                         "ciudad" TEXT NOT NULL,
                         "telefono"	INTEGER,
-                        "activo"	INTEGER,"tipo"	INTEGER,
+                        "activo"	INTEGER DEFAULT 1,"tipo"	INTEGER,
                         FOREIGN KEY("tipo") REFERENCES "Roles"("id"),
                         PRIMARY KEY("id")
                         );'''
@@ -172,3 +174,89 @@ def usuario_administrador(usuario):
         return True
     else:
         return False
+def listar_productos(nombre):
+    sql = f"""SELECT p.codigo,p.id,p.marca,p.stock,p.precio,p.categoria,c.categoria categoria
+     FROM Productos p 
+     INNER JOIN Categorias_productos c ON p.categoria = c.codigo
+     WHERE  p.stock > 0 AND p.es_activo = 1 AND (p.id LIKE '%{nombre.lower()}%' OR p.id LIKE '%{nombre.capitalize()}%') 
+    ;"""
+    resultado = Db.consulta_db(sql)
+    return resultado
+
+def obtener_datos_prod(cod_prod,cant_elegida):
+    sql = f"""SELECT p.codigo,p.id,p.marca,p.precio,p.categoria,c.categoria categoria
+     FROM Productos p 
+     INNER JOIN Categorias_productos c ON p.categoria = c.codigo
+     WHERE p.codigo = '{cod_prod}' AND p.stock >= '{cant_elegida}' AND p.es_activo = 1 ;""" 
+    resultado = Db.consulta_db(sql,True) 
+    
+    return resultado
+
+def retorna_stock_disponible(codigo):
+    sql =f'SELECT stock from Productos WHERE codigo= {codigo}'
+    stock_disponible = Db.consulta_db(sql,True)
+    stock_disponible = stock_disponible[0]
+    return stock_disponible
+
+def comprar_producto(codigo,cantidad):
+    sql = f"""UPDATE Productos SET stock = stock -'{cantidad}'
+             WHERE codigo = '{codigo}' """ 
+    Db.modifica_db(sql)
+
+def valida_lista_productos(lista_compra):
+    for item in lista_compra:   #valida stock y si pasa la validacion compra el producto
+        if(retorna_stock_disponible(item[0]) >= item[3]):
+            comprar_producto(item[0],item[3])
+            print(f'Compro: {item[3]}  Unidades de : {item[1]} !')
+        else:
+            lista_compra.remove(item)#quitar de la lista de compra
+
+
+def obtener_codigo_compra():
+    sql ="SELECT MAX(codigo)FROM 'Pedidos' "
+    resp = Db.consulta_db(sql,True)
+    if(resp[0] == None):
+        resp = 1
+        return(resp)
+    else:
+        resp = int(resp[0]) + 1
+        return(resp) 
+
+def obtener_codigo_inicial_detalle_pedidos():
+    sql ="SELECT MAX(id) FROM 'Detalle_pedidos' "
+    resp = Db.consulta_db(sql,True)
+    if(resp[0] == None):
+        resp = 1
+        return(resp)
+    else:
+        resp = int(resp[0]) + 1
+        return(resp) 
+
+def agregar_detalle_compra(id,nombre,cantidad,cod):
+    sql ="INSERT INTO Detalle_pedidos VALUES (?,?,?,?)"
+    argumento =(id,nombre,cantidad,cod)
+    Db.modifica_db(sql,argumento)
+
+def retorna_fecha():
+    fecha = Db.consulta_db('SELECT date();',True)
+    fecha=fecha[0]
+    return fecha
+
+def registrar_compra(lista_compra,usuario):
+    codigo_pedido = obtener_codigo_compra()
+    id_detalle_pedido =obtener_codigo_inicial_detalle_pedidos()
+    total_compra = 0
+    for art in lista_compra:
+        agregar_detalle_compra(id_detalle_pedido,art[1]+" "+art[2],art[3],codigo_pedido)
+        id_detalle_pedido += 1
+        total_compra += art[4]
+    fecha = retorna_fecha()
+    #agregar compra
+    sql = "INSERT INTO Pedidos VALUES (?,?,?,?)"
+    argumento=(codigo_pedido,fecha,usuario,total_compra)
+    Db.modifica_db(sql,argumento)
+    Cartel = f'''Usuario: {usuario} 
+                Codigo de pedido: {codigo_pedido} 
+                Total de la compra: {total_compra}'''
+    return Cartel    
+

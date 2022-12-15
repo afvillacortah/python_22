@@ -4,12 +4,14 @@ import tkinter.messagebox as tkMsgBox
 from frmuser import User
 from frmdashboard import Dashboard
 import bll.usuarios as user
+from frmdasboardusuario import DashboardUser
 
 class Login(tk.Toplevel):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.title("Login")        
+        self.title("Login") 
+        self.user_name =''       
         width=482
         height=135
         screenwidth = master.winfo_screenwidth()
@@ -86,7 +88,8 @@ class Login(tk.Toplevel):
     def iniciar_sesion(self):
         try:
             txtUsuario = self.nametowidget("txtUsuario")
-            usuario = txtUsuario.get()            
+            usuario = txtUsuario.get()
+            self.user_name = usuario            
 
             txtContrasenia = self.nametowidget("txtContrasenia")
             contrasenia = txtContrasenia.get()
@@ -97,7 +100,9 @@ class Login(tk.Toplevel):
                         Dashboard(self.master)
                         self.destroy()
                     else:
-                        print('abrir menu de usuario comun')
+                        DashboardUser(self)
+                        
+                        
                         #abrir menu usuario
                 else:
                     tkMsgBox.showwarning(self.master.title(), "Usuario/Contraseña incorrecta")
@@ -111,3 +116,9 @@ class Login(tk.Toplevel):
 
     def abrir_user(self):
         User(self.master)
+
+
+if __name__ == "__main__":
+    self = tk.Tk()
+    app = Login(self)
+    self.mainloop()

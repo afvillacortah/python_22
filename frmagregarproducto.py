@@ -136,7 +136,6 @@ class Agregar_producto(tk.Toplevel):
         return self.nametowidget(name).current() + 1
 
     def GButton_358_command(self):
-        print("Boton Aceptar")
         nombre_producto = self.get_value("txtNombre")
         marca = self.get_value("txtMarca")
         stock = self.get_value("txtStock")
@@ -159,7 +158,7 @@ class Agregar_producto(tk.Toplevel):
             self.destroy()
         else:
             #mostrar mensaje de error segun el campo que no paso la validacion
-            print('error de algun campo')
+            
             if not(adm.valida_producto_no_existe(nombre_producto,marca)):
                 tkMsgBox.showwarning(self.master.title(), "El producto ya existe en nuestros registros")
             elif not(adm.valida_nom_mar(nombre_producto)):

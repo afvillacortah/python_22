@@ -259,7 +259,7 @@ class DashboardUser(tk.Toplevel):
         
     #boton salir
     def GButton_590_command(self):
-        self.master.destroy()
+        self.master.master.destroy()
 
 
 if __name__ == "__main__":

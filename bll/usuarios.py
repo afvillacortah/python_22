@@ -2,7 +2,7 @@ from dal.db import Db
 import hashlib
 def poblar_tablas():
     #tabla roles
-    datos_roles = [(1,'administrador'),(2,'usuario'),(3,'vendedor')]
+    datos_roles = [(1,'administrador'),(2,'cliente')]
     consulta_roles = '''INSERT INTO "Roles" VALUES (?,?)'''
     cant_filas_roles = int((Db.consulta_db(f'SELECT COUNT(*) FROM "Roles" ',True))[0])
 
@@ -48,6 +48,7 @@ def crear_tablas(): #tablas para guardar los datos de los usuarios
 	                "fecha"	TEXT,
 	                "usuario"	TEXT,
 	                "monto_total"	REAL,
+                    "pendiente_entrega" INTEGER DEFAULT 1,
 	                PRIMARY KEY("codigo" AUTOINCREMENT)
                     );'''
     tabla_detalle_pedidos = '''CREATE TABLE IF NOT EXISTS "Detalle_pedidos" (
@@ -121,9 +122,9 @@ def es_text_sin_espacios(variable):
     for c in variable:
         if c == ' ':
             no_tiene_espacio = False
-    return (variable.isprintable() and no_tiene_espacio)
+    return (variable.isprintable() and no_tiene_espacio and (variable != ''))
 def es_text_con_espacios(variable):
-    return (variable.isprintable() and (not variable.isdigit()) )
+    return (variable.isprintable() and (not variable.isdigit()) and (variable!= ''))
 def es_numero(numero):
     return numero.isdigit()
 
@@ -132,13 +133,13 @@ def valida_nombre_ape(var):
     for c in var:
         if c == ' ':
             tiene_espacio = True
-    return (var.isalpha() or tiene_espacio)
+    return ((var.isalpha() or tiene_espacio) and (var != ''))
 def valida_domicilio(domicilio):
     tiene_espacio = False
     for c in domicilio:
         if c == ' ':
             tiene_espacio = True
-    return (domicilio.isalnum() or tiene_espacio)
+    return ((domicilio.isalnum() or tiene_espacio)and (domicilio != ''))
 def valida_ciudad(ciudad):
     tiene_espacio = False
     for c in ciudad:
@@ -252,8 +253,8 @@ def registrar_compra(lista_compra,usuario):
         total_compra += art[4]
     fecha = retorna_fecha()
     #agregar compra
-    sql = "INSERT INTO Pedidos VALUES (?,?,?,?)"
-    argumento=(codigo_pedido,fecha,usuario,total_compra)
+    sql = "INSERT INTO Pedidos VALUES (?,?,?,?,?)"
+    argumento=(codigo_pedido,fecha,usuario,total_compra,1)
     Db.modifica_db(sql,argumento)
     Cartel = f'''Usuario: {usuario} 
                 Codigo de pedido: {codigo_pedido} 

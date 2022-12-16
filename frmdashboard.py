@@ -2,6 +2,8 @@ import tkinter as tk
 import tkinter.font as tkFont
 from  frmagregarproducto import  Agregar_producto
 from frmmodificarproducto import Modificar_producto
+from frmcomprasrealizadas import Compras
+from frmuser import User
 class Dashboard(tk.Toplevel):
     def __init__(self, master=None):
         super().__init__(master)
@@ -62,20 +64,34 @@ class Dashboard(tk.Toplevel):
         GButton_400["font"] = ft
         GButton_400["fg"] = "#000000"
         GButton_400["justify"] = "center"
-        GButton_400["text"] = "Ver detalle de compra"
-        GButton_400.place(x=70,y=220,width=207,height=30)
-        GButton_400["command"] = self.detalle_compra
+        GButton_400["text"] = "Agregar Usuario"
+        GButton_400.place(x=70,y=210,width=207,height=30)
+        GButton_400["command"] = self.agregar_usuario
+
+        GButton_401=tk.Button(self)
+        GButton_401["bg"] = "#f0f0f0"
+        ft = tkFont.Font(family='Times',size=10)
+        GButton_401["font"] = ft
+        GButton_401["fg"] = "#000000"
+        GButton_401["justify"] = "center"
+        GButton_401["text"] = "Salir"
+        GButton_401.place(x=70,y=260,width=207,height=30)
+        GButton_401["command"] = self.salir
 
         
     
     def cargar_producto(self):
-        Agregar_producto(self)
+        Agregar_producto(self.master)
 
     def editar_producto(self):
-        Modificar_producto(self)
+        Modificar_producto(self.master)
 
     def compras_realizadas(self):
-        print("Compras realizadas")
+        Compras(self.master)
     
-    def detalle_compra(self):
-        print("detalle de compra de un usuario")
+    def agregar_usuario(self):
+        User(self,True)
+        
+
+    def salir(self):
+        self.master.destroy()

@@ -101,3 +101,9 @@ def actualizar_producto(codigo,nombre,marca,stock,precio,estado,categoria):
     precio = float(precio)
     arg = (nombre,marca,stock,precio,estado,categoria)
     Db.modifica_db(sql,arg)
+
+def obtener_detalle_compra(codigo_pedido):
+    sql = 'SELECT * FROM Detalle_pedidos WHERE codigo_pedido =(?)'
+    argum = (codigo_pedido,)
+    return Db.consulta_db(sql,True,argum)
+    

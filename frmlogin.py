@@ -6,6 +6,7 @@ from frmdashboard import Dashboard
 import bll.usuarios as user
 from frmdasboardusuario import DashboardUser
 
+
 class Login(tk.Toplevel):
     def __init__(self, master=None):
         super().__init__(master)

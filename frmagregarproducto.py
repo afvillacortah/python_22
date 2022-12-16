@@ -85,7 +85,7 @@ class Agregar_producto(tk.Toplevel):
         GLabel_857["fg"] = "#333333"
         GLabel_857["justify"] = "center"
         GLabel_857["text"] = "Precio Unitario"
-        GLabel_857.place(x=40,y=200,width=70,height=25)
+        GLabel_857.place(x=30,y=200,width=100,height=25)
 
         GLineEdit_333=tk.Entry(self,name='txtPrecio')
         GLineEdit_333["borderwidth"] = "1px"

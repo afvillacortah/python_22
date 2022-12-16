@@ -2,8 +2,10 @@
 Repositorio del proyecto final 1000 programadores Salteños. Aplicacion de escritorio escrita en lenguaje Python 3.11 y tkinter .
 
 log_in :
- usuario:administrador password:123456 (usuario con privilegios de administrador)
- usuario:cliente    password:123      (usuario con privilegios de cliente)
+
+ usuario: administrador   password:123456 (usuario con privilegios de administrador)
+ 
+ usuario: cliente        password:123      (usuario con privilegios de cliente)
 
 Nombre del Proyecto : Sistema de Gestión Supermark
 

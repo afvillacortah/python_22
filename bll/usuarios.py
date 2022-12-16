@@ -2,7 +2,7 @@ from dal.db import Db
 import hashlib
 def poblar_tablas():
     #tabla roles
-    datos_roles = [(1,'administrador'),(2,'usuario'),(3,'vendedor')]
+    datos_roles = [(1,'administrador'),(2,'cliente')]
     consulta_roles = '''INSERT INTO "Roles" VALUES (?,?)'''
     cant_filas_roles = int((Db.consulta_db(f'SELECT COUNT(*) FROM "Roles" ',True))[0])
 
@@ -38,6 +38,7 @@ def crear_tablas(): #tablas para guardar los datos de los usuarios
                         "marca"	TEXT NOT NULL,
                         "stock"	INTEGER NOT NULL,
                         "precio"	REAL NOT NULL,
+                        "es_activo" INTEGER DEFAULT 1,
                         "categoria"	INTEGER,
                         FOREIGN KEY("categoria") REFERENCES "Categorias_productos"("codigo"),
                         PRIMARY KEY("codigo" AUTOINCREMENT)
@@ -47,11 +48,13 @@ def crear_tablas(): #tablas para guardar los datos de los usuarios
 	                "fecha"	TEXT,
 	                "usuario"	TEXT,
 	                "monto_total"	REAL,
+                    "pendiente_entrega" INTEGER DEFAULT 1,
 	                PRIMARY KEY("codigo" AUTOINCREMENT)
                     );'''
     tabla_detalle_pedidos = '''CREATE TABLE IF NOT EXISTS "Detalle_pedidos" (
-                            "producto"	TEXT,"precio_unitario"	REAL,
-                            "id"	INTEGER,"codigo_pedido"	INTEGER,
+                            "id"	INTEGER,
+                            "producto"	TEXT,"cantidad"	INTEGER,
+                            "codigo_pedido"	INTEGER,
                             PRIMARY KEY("id" AUTOINCREMENT),
                             FOREIGN KEY("codigo_pedido") REFERENCES "Pedidos"("codigo")
                             );'''
@@ -66,7 +69,7 @@ def crear_tablas(): #tablas para guardar los datos de los usuarios
                         "domicilio"	TEXT NOT NULL,
                         "ciudad" TEXT NOT NULL,
                         "telefono"	INTEGER,
-                        "activo"	INTEGER,"tipo"	INTEGER,
+                        "activo"	INTEGER DEFAULT 1,"tipo"	INTEGER,
                         FOREIGN KEY("tipo") REFERENCES "Roles"("id"),
                         PRIMARY KEY("id")
                         );'''
@@ -119,24 +122,24 @@ def es_text_sin_espacios(variable):
     for c in variable:
         if c == ' ':
             no_tiene_espacio = False
-
-    return (variable.isprintable() and (not variable.isdigit()) and no_tiene_espacio)
+    return (variable.isprintable() and no_tiene_espacio and (variable != ''))
 def es_text_con_espacios(variable):
-    return (variable.isprintable() and (not variable.isdigit()) )
+    return (variable.isprintable() and (not variable.isdigit()) and (variable!= ''))
 def es_numero(numero):
     return numero.isdigit()
+
 def valida_nombre_ape(var):
     tiene_espacio = False
     for c in var:
         if c == ' ':
             tiene_espacio = True
-    return (var.isalpha() or tiene_espacio)
+    return ((var.isalpha() or tiene_espacio) and (var != ''))
 def valida_domicilio(domicilio):
     tiene_espacio = False
     for c in domicilio:
         if c == ' ':
             tiene_espacio = True
-    return (domicilio.isalnum() or tiene_espacio)
+    return ((domicilio.isalnum() or tiene_espacio)and (domicilio != ''))
 def valida_ciudad(ciudad):
     tiene_espacio = False
     for c in ciudad:
@@ -159,7 +162,102 @@ def valida_email(email):
 
 
 def valida_datos_registro(usuario,contrasenia,confirmacion,nombre,apellido,dni,email,domicilio,ciudad,telefono):
-    return (es_text_sin_espacios(usuario)and (not(existe_usuario(usuario)))and password_iguales(contrasenia,confirmacion)and
-     es_text_sin_espacios(contrasenia) and valida_nombre_ape(nombre)and valida_nombre_ape(apellido)and es_numero(dni) and
+    return (es_text_sin_espacios(usuario)and (not es_numero(usuario)) and (not(existe_usuario(usuario)))and password_iguales(contrasenia,confirmacion)and
+     es_text_sin_espacios(contrasenia) and  valida_nombre_ape(nombre)and valida_nombre_ape(apellido)and es_numero(dni) and
       valida_domicilio(domicilio)and valida_ciudad(ciudad)and es_numero(telefono) and valida_email(email))
-      
+
+def usuario_administrador(usuario):
+    sql = 'SELECT "tipo" FROM "Usuarios" WHERE id = ?'
+    parametro = (usuario,)
+    resp = Db.consulta_db(sql,True,parametro)
+    resp = int(resp[0])
+    if resp == 1:
+        return True
+    else:
+        return False
+def listar_productos(nombre):
+    sql = f"""SELECT p.codigo,p.id,p.marca,p.stock,p.precio,p.categoria,c.categoria categoria
+     FROM Productos p 
+     INNER JOIN Categorias_productos c ON p.categoria = c.codigo
+     WHERE  p.stock > 0 AND p.es_activo = 1 AND (p.id LIKE '%{nombre.lower()}%' OR p.id LIKE '%{nombre.capitalize()}%') 
+    ;"""
+    resultado = Db.consulta_db(sql)
+    return resultado
+
+def obtener_datos_prod(cod_prod,cant_elegida):
+    sql = f"""SELECT p.codigo,p.id,p.marca,p.precio,p.categoria,c.categoria categoria
+     FROM Productos p 
+     INNER JOIN Categorias_productos c ON p.categoria = c.codigo
+     WHERE p.codigo = '{cod_prod}' AND p.stock >= '{cant_elegida}' AND p.es_activo = 1 ;""" 
+    resultado = Db.consulta_db(sql,True) 
+    
+    return resultado
+
+def retorna_stock_disponible(codigo):
+    sql =f'SELECT stock from Productos WHERE codigo= {codigo}'
+    stock_disponible = Db.consulta_db(sql,True)
+    stock_disponible = stock_disponible[0]
+    return stock_disponible
+
+def comprar_producto(codigo,cantidad):
+    sql = f"""UPDATE Productos SET stock = stock -'{cantidad}'
+             WHERE codigo = '{codigo}' """ 
+    Db.modifica_db(sql)
+
+def valida_lista_productos(lista_compra):
+    for item in lista_compra:   #valida stock y si pasa la validacion compra el producto
+        if(retorna_stock_disponible(item[0]) >= item[3]):
+            comprar_producto(item[0],item[3])
+            print(f'Compro: {item[3]}  Unidades de : {item[1]} !')
+        else:
+            lista_compra.remove(item)#quitar de la lista de compra
+
+
+def obtener_codigo_compra():
+    sql ="SELECT MAX(codigo)FROM 'Pedidos' "
+    resp = Db.consulta_db(sql,True)
+    if(resp[0] == None):
+        resp = 1
+        return(resp)
+    else:
+        resp = int(resp[0]) + 1
+        return(resp) 
+
+def obtener_codigo_inicial_detalle_pedidos():
+    sql ="SELECT MAX(id) FROM 'Detalle_pedidos' "
+    resp = Db.consulta_db(sql,True)
+    if(resp[0] == None):
+        resp = 1
+        return(resp)
+    else:
+        resp = int(resp[0]) + 1
+        return(resp) 
+
+def agregar_detalle_compra(id,nombre,cantidad,cod):
+    sql ="INSERT INTO Detalle_pedidos VALUES (?,?,?,?)"
+    argumento =(id,nombre,cantidad,cod)
+    Db.modifica_db(sql,argumento)
+
+def retorna_fecha():
+    fecha = Db.consulta_db('SELECT date();',True)
+    fecha=fecha[0]
+    return fecha
+
+def registrar_compra(lista_compra,usuario):
+    codigo_pedido = obtener_codigo_compra()
+    id_detalle_pedido =obtener_codigo_inicial_detalle_pedidos()
+    total_compra = 0
+    for art in lista_compra:
+        agregar_detalle_compra(id_detalle_pedido,art[1]+" "+art[2],art[3],codigo_pedido)
+        id_detalle_pedido += 1
+        total_compra += art[4]
+    fecha = retorna_fecha()
+    #agregar compra
+    sql = "INSERT INTO Pedidos VALUES (?,?,?,?,?)"
+    argumento=(codigo_pedido,fecha,usuario,total_compra,1)
+    Db.modifica_db(sql,argumento)
+    Cartel = f'''Usuario: {usuario} 
+                Codigo de pedido: {codigo_pedido} 
+                Total de la compra: {total_compra}'''
+    return Cartel    
+

@@ -156,7 +156,6 @@ class User(Toplevel):
         GLineEdit_126["text"] = ""
         GLineEdit_126.place(x=170,y=320,width=208,height=30)        
 
-        #todo label ciudad, label telefono
 
         GLabel_761=Label(self)
         ft = tkFont.Font(family='Times',size=10)

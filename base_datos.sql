@@ -22,9 +22,9 @@ CREATE TABLE IF NOT EXISTS "Pedidos" (
 	PRIMARY KEY("codigo" AUTOINCREMENT)
 );
 CREATE TABLE IF NOT EXISTS "Detalle_pedidos" (
+	"id"	INTEGER,
 	"producto"	TEXT,
 	"precio_unitario"	REAL,
-	"id"	INTEGER,
 	"codigo_pedido"	INTEGER,
 	PRIMARY KEY("id" AUTOINCREMENT),
 	FOREIGN KEY("codigo_pedido") REFERENCES "Pedidos"("codigo")

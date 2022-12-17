@@ -106,7 +106,7 @@ class Agregar_producto(tk.Toplevel):
 
         categorias_productos = dict(cat.listar())
         cb_categorias = ttk.Combobox(self, state="readonly", values=list(categorias_productos.values()), name="cbCategoria")
-        cb_categorias.place(x=150,y=260,width=80,height=25)
+        cb_categorias.place(x=150,y=260,width=200,height=25)
 
         GButton_358=tk.Button(self)
         GButton_358["bg"] = "#e9e9ed"

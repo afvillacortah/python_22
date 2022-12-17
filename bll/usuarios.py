@@ -1,5 +1,7 @@
 from dal.db import Db
 import hashlib
+import bll.detalles_pedidos as dp
+import bll.pedidos as ped
 def poblar_tablas():
     #tabla roles
     datos_roles = [(1,'administrador'),(2,'cliente')]
@@ -52,8 +54,11 @@ def crear_tablas(): #tablas para guardar los datos de los usuarios
 	                PRIMARY KEY("codigo" AUTOINCREMENT)
                     );'''
     tabla_detalle_pedidos = '''CREATE TABLE IF NOT EXISTS "Detalle_pedidos" (
-                            "id"	INTEGER,
-                            "producto"	TEXT,"cantidad"	INTEGER,
+                            "id"	INTEGER,                
+                            "codigo_producto" INTEGER,
+                            "producto"	TEXT,
+                            "cantidad"	INTEGER,
+                            "precio_unitario" REAL,
                             "codigo_pedido"	INTEGER,
                             PRIMARY KEY("id" AUTOINCREMENT),
                             FOREIGN KEY("codigo_pedido") REFERENCES "Pedidos"("codigo")
@@ -213,51 +218,40 @@ def valida_lista_productos(lista_compra):
             lista_compra.remove(item)#quitar de la lista de compra
 
 
-def obtener_codigo_compra():
-    sql ="SELECT MAX(codigo)FROM 'Pedidos' "
-    resp = Db.consulta_db(sql,True)
-    if(resp[0] == None):
-        resp = 1
-        return(resp)
-    else:
-        resp = int(resp[0]) + 1
-        return(resp) 
 
-def obtener_codigo_inicial_detalle_pedidos():
-    sql ="SELECT MAX(id) FROM 'Detalle_pedidos' "
-    resp = Db.consulta_db(sql,True)
-    if(resp[0] == None):
-        resp = 1
-        return(resp)
-    else:
-        resp = int(resp[0]) + 1
-        return(resp) 
 
-def agregar_detalle_compra(id,nombre,cantidad,cod):
-    sql ="INSERT INTO Detalle_pedidos VALUES (?,?,?,?)"
-    argumento =(id,nombre,cantidad,cod)
-    Db.modifica_db(sql,argumento)
+
+
+
 
 def retorna_fecha():
     fecha = Db.consulta_db('SELECT date();',True)
     fecha=fecha[0]
     return fecha
 
+def obtener_detalle(lista_compra):
+    detalle=''
+    for cod,prod,marca,cantidad,precio_unit in lista_compra:
+        detalle += f'{prod} {marca} x {cantidad} unid.  Precio Unit. :{precio_unit} \n'
+    return detalle
 def registrar_compra(lista_compra,usuario):
-    codigo_pedido = obtener_codigo_compra()
-    id_detalle_pedido =obtener_codigo_inicial_detalle_pedidos()
+    codigo_pedido = ped.obtener_codigo_compra()
+    id_detalle_pedido =dp.obtener_codigo_inicial_detalle_pedidos()
     total_compra = 0
     for art in lista_compra:
-        agregar_detalle_compra(id_detalle_pedido,art[1]+" "+art[2],art[3],codigo_pedido)
+        dp.agregar_detalle_compra(id_detalle_pedido,art[0],art[1]+" "+art[2],art[3],art[4],codigo_pedido)
         id_detalle_pedido += 1
         total_compra += art[4]
     fecha = retorna_fecha()
-    #agregar compra
-    sql = "INSERT INTO Pedidos VALUES (?,?,?,?,?)"
-    argumento=(codigo_pedido,fecha,usuario,total_compra,1)
-    Db.modifica_db(sql,argumento)
-    Cartel = f'''Usuario: {usuario} 
-                Codigo de pedido: {codigo_pedido} 
-                Total de la compra: {total_compra}'''
+    detalle_pedido = obtener_detalle(lista_compra)
+    #agregar pedido
+    ped.agregar_pedido(codigo_pedido,fecha,usuario,total_compra)
+    
+    Cartel = f'''Usuario: {usuario}\n
+    Codigo de pedido:{codigo_pedido}\n
+    Fecha:{fecha}\n
+    Detalle compra:\n
+    {detalle_pedido}
+    Total de la compra: {total_compra}\n''' 
     return Cartel    
 

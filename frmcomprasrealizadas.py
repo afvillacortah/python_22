@@ -87,15 +87,20 @@ class Compras(tk.Toplevel):
         GLabel_633["text"] = "Fecha"
         GLabel_633.place(x=30,y=230,width=113,height=30)
 
-        GMessage_940=tk.Message(self,textvariable=self.detalle_pedido,name='msgDetalle_compra')
-        ft = tkFont.Font(family='Times',size=12)
-        GMessage_940["font"] = ft
-        GMessage_940["fg"] = "#333333"
-        GMessage_940["justify"] = "center"
-        GMessage_940["anchor"]= W
-        GMessage_940["text"] = ''
-        GMessage_940["width"] =500
-        GMessage_940.place(x=50,y=260,width=500,height=180)
+
+        tvDetalle = ttk.Treeview(self,columns=('nombre','cantidad','monto'),name='tvDetalle')
+        tvDetalle.column("#0",width=50)
+        tvDetalle.column("nombre",width=80,anchor=CENTER)
+        tvDetalle.column("cantidad",width=100,anchor=CENTER)
+        tvDetalle.column("monto",width=60,anchor=CENTER)
+        
+        tvDetalle.heading(column="#0",text='Codigo',anchor=CENTER)
+        tvDetalle.heading(column='nombre',text='Producto',anchor=CENTER)
+        tvDetalle.heading(column='cantidad',text='Cantidad',anchor=CENTER)
+        tvDetalle.heading(column='monto',text='Precio Unit.',anchor=CENTER)
+        tvDetalle.place(x=50,y=260,width=500,height=180)
+
+        
 
     def obtener_cod_pedido(self, event):
         tvPedidos = self.nametowidget("tvPedidos")
@@ -110,11 +115,17 @@ class Compras(tk.Toplevel):
 
     #al presionar el boton 'Ver Detalle' muestra en el mensaje un detalle
     def GButton_255_command(self):
-        msgbox =self.nametowidget("msgDetalle_compra")
+        #pedir los datos de detalle pedido enviando el cod del pedido
+        detalle_pedido = dp.listar_detalle(self.select_cod)
+        tvdetalle = self.nametowidget("tvDetalle")
+        #borrar info anterior del tvdetalle
+        for record in tvdetalle.get_children():
+            tvdetalle.delete(record) 
+        #insertar nueva info
+        for id,cod_prod,nombre_producto,cantidad,precio_unitario,cod_pedido in detalle_pedido:
+            tvdetalle.insert("", END, text=cod_prod, values=(nombre_producto, cantidad, precio_unitario))
 
-        cabecera = 'Producto \t\t\t\t Cantidad\n'
-        detalle_pedido = cabecera+dp.listar_detalle(self.select_cod)
-        msgbox['text']=detalle_pedido
+        
         
         
     

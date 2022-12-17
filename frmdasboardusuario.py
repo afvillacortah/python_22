@@ -175,8 +175,8 @@ class DashboardUser(tk.Toplevel):
         ticket =[]
         if(len(lista_compra) > 0):
             user = self.current_user
-            ticket = usr.registrar_compra(lista_compra,user)  
-            tkMsgBox.showinfo(title='Compra Realizada',message=ticket) 
+            detalle_compra = usr.registrar_compra(lista_compra,user)  
+            tkMsgBox.showinfo(title='Compra Realizada',message=detalle_compra) 
         else:
             tkMsgBox.showwarning(self.master.title(), "Los productos seleccionados no tienen stock disponible.") 
 

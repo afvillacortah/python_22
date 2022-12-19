@@ -3,7 +3,7 @@ Repositorio del proyecto final 1000 programadores Salteños. Aplicacion de escri
 
 log_in :
 
- usuario: administrador   password:123456 (usuario con privilegios de administrador)
+ usuario: admin   password:123456 (usuario con privilegios de administrador)
  
  usuario: cliente        password:123      (usuario con privilegios de cliente)
 
